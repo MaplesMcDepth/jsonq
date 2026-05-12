@@ -1,5 +1,10 @@
 # jsonq
 
+![CI](https://github.com/MaplesMcDepth/jsonq/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?logo=go)
+
+
 Simple JSON query tool — like jq but you can actually remember the syntax.
 
 ## Install
