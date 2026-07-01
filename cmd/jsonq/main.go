@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -297,31 +298,32 @@ func runPluck(input []byte, key string) {
 	}
 }
 
-func runCSV(input []byte) {
-	var arr []map[string]interface{}
-	if err := json.Unmarshal(input, &arr); err != nil {
-		fmt.Fprintln(os.Stderr, "Invalid JSON array of objects:", err)
-		os.Exit(1)
-	}
-	if len(arr) == 0 {
-		fmt.Fprintln(os.Stderr, "Empty array")
-		os.Exit(1)
-	}
-
-	// Collect all keys
+func csvKeys(arr []map[string]interface{}) []string {
 	keySet := make(map[string]bool)
 	for _, obj := range arr {
 		for k := range obj {
 			keySet[k] = true
 		}
 	}
-	var keys []string
+
+	keys := make([]string, 0, len(keySet))
 	for k := range keySet {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
+	return keys
+}
 
-	w := csv.NewWriter(os.Stdout)
-	w.Write(keys)
+func writeCSV(w io.Writer, arr []map[string]interface{}) error {
+	if len(arr) == 0 {
+		return fmt.Errorf("empty array")
+	}
+
+	keys := csvKeys(arr)
+	csvWriter := csv.NewWriter(w)
+	if err := csvWriter.Write(keys); err != nil {
+		return err
+	}
 
 	for _, obj := range arr {
 		row := make([]string, len(keys))
@@ -332,9 +334,28 @@ func runCSV(input []byte) {
 				row[i] = ""
 			}
 		}
-		w.Write(row)
+		if err := csvWriter.Write(row); err != nil {
+			return err
+		}
 	}
-	w.Flush()
+	csvWriter.Flush()
+	return csvWriter.Error()
+}
+
+func runCSV(input []byte) {
+	var arr []map[string]interface{}
+	if err := json.Unmarshal(input, &arr); err != nil {
+		fmt.Fprintln(os.Stderr, "Invalid JSON array of objects:", err)
+		os.Exit(1)
+	}
+	if err := writeCSV(os.Stdout, arr); err != nil {
+		if err.Error() == "empty array" {
+			fmt.Fprintln(os.Stderr, "Empty array")
+		} else {
+			fmt.Fprintln(os.Stderr, "Error writing CSV:", err)
+		}
+		os.Exit(1)
+	}
 }
 
 func runValidate(input []byte) {
