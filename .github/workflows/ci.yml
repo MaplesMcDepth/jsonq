@@ -5,22 +5,64 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         go-version: ['1.23', '1.24']
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ matrix.go-version }}
-    - name: Build
-      run: go build ./...
-    - name: Test
-      run: go test ./...
-    - name: Vet
-      run: go vet ./...
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test ./...
+      - name: Vet
+        run: go vet ./...
+
+  release-binaries:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Build release binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p dist
+          ext=''
+          if [ "$GOOS" = 'windows' ]; then
+            ext='.exe'
+          fi
+          go build -o "dist/jsonq-${GOOS}-${GOARCH}${ext}" ./cmd/jsonq
+      - name: Upload release binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsonq-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/jsonq-${{ matrix.goos }}-${{ matrix.goarch }}*
+          if-no-files-found: error
