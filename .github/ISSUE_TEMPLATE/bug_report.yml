@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible problem with jsonq
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please share enough detail for us to reproduce it.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear summary of the bug.
+      placeholder: The command failed when...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include commands, sample JSON, filters, and exact output when possible.
+      placeholder: |
+        1. Run `jsonq ...`
+        2. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: I expected...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: jsonq version
+      placeholder: e.g. commit SHA or release tag
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. Ubuntu 24.04, macOS 15, Windows 11
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Logs, screenshots, or anything else that may help.
