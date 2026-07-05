@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an improvement for jsonq
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Please explain the problem you're trying to solve and what a good outcome looks like.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      placeholder: It's hard to...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to see?
+      placeholder: I'd like jsonq to...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      placeholder: I also tried...
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Mockups, examples, or related tools are welcome.
